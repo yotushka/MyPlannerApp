@@ -5,9 +5,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9f9f9",
   },
-  listContainer: {
-    paddingBottom: 100,
-  },
   categoryContainer: {
     marginVertical: 10,
     padding: 15,
@@ -23,9 +20,22 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  taskContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  taskContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   task: {
     fontSize: 16,
     paddingVertical: 5,
+    marginLeft: 10,
+  },
+  deleteButton: {
+    marginLeft: 10,
   },
   emptyText: {
     fontSize: 14,
@@ -61,16 +71,29 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 10,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 10,
+  pickerModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  buttonContainer: {
+  pickerInnerContainer: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  pickerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  pickerButtonContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+    marginTop: 20,
+    width: "100%",
   },
   cancelButton: {
     backgroundColor: "#ccc",
@@ -78,16 +101,20 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     flex: 1,
     marginRight: 5,
+    alignItems: "center",
   },
-  addTaskButton: {
+  cancelButtonText: {
+    color: "black",
+  },
+  confirmButton: {
     backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
     flex: 1,
     marginLeft: 5,
+    alignItems: "center",
   },
-  buttonText: {
-    textAlign: "center",
+  confirmButtonText: {
     color: "white",
   },
   dateButton: {
@@ -100,5 +127,39 @@ export const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,
     color: "#007AFF",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  addTaskButton: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginLeft: 5,
+  },
+  dateTimeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  dateTimeColumn: {
+    flex: 1,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
   },
 });
