@@ -19,14 +19,14 @@ const taskCategories = ["Сьогодні", "Завтра", "Тиждень", "�
 
 export default function HomeScreen() {
   const [tasks, setTasks] = useState<
-    { id: string; task: string; date: string; completed: boolean }[]
+    { id: string; task: string; note: string; date: string; completed: boolean }[]
   >([]);
-  const [newTask, setNewTask] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [previousDate, setPreviousDate] = useState(new Date());
+  const [newTask, setNewTask] = useState("");
+  const [taskNote, setTaskNote] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
+  const [isViewTaskModalVisible, setIsViewTaskModalVisible] = useState(false);
+  const [currentTask, setCurrentTask] = useState<any | null>(null);
 
   const generateUniqueId = () => `${Date.now()}-${Math.random()}`;
 
@@ -58,41 +58,25 @@ export default function HomeScreen() {
 
   const handleAddTask = () => {
     if (!newTask.trim()) {
-      Alert.alert("Помилка", "Будь ласка, введіть завдання.");
+      Alert.alert("Помилка", "Будь ласка, введіть заголовок завдання.");
       return;
     }
 
-    if (isEditing && currentTaskId) {
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === currentTaskId
-            ? { ...task, task: newTask.trim(), date: selectedDate.toISOString() }
-            : task
-        )
-      );
-      setIsEditing(false);
-    } else {
-      setTasks((prevTasks) => [
-        ...prevTasks,
-        { id: generateUniqueId(), task: newTask.trim(), date: selectedDate.toISOString(), completed: false },
-      ]);
-    }
+    setTasks((prevTasks) => [
+      ...prevTasks,
+      {
+        id: generateUniqueId(),
+        task: newTask.trim(),
+        note: taskNote.trim(),
+        date: selectedDate.toISOString(),
+        completed: false,
+      },
+    ]);
 
     setNewTask("");
+    setTaskNote("");
     setSelectedDate(new Date());
     setIsModalVisible(false);
-    setCurrentTaskId(null);
-  };
-
-  const handleEditTask = (taskId: string) => {
-    const taskToEdit = tasks.find((task) => task.id === taskId);
-    if (taskToEdit) {
-      setNewTask(taskToEdit.task);
-      setSelectedDate(new Date(taskToEdit.date));
-      setCurrentTaskId(taskId);
-      setIsEditing(true);
-      setIsModalVisible(true);
-    }
   };
 
   const toggleTaskCompletion = (id: string) => {
@@ -103,8 +87,26 @@ export default function HomeScreen() {
     );
   };
 
+  const handleUpdateTask = () => {
+    if (!currentTask.task.trim()) {
+      Alert.alert("Помилка", "Заголовок завдання не може бути пустим.");
+      return;
+    }
+
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === currentTask.id
+          ? { ...task, task: currentTask.task, note: currentTask.note }
+          : task
+      )
+    );
+    setIsViewTaskModalVisible(false);
+    setCurrentTask(null);
+  };
+
   const handleDeleteTask = (id: string) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    setIsViewTaskModalVisible(false);
   };
 
   const renderCategory = (category: string) => (
@@ -113,42 +115,44 @@ export default function HomeScreen() {
       <FlatList
         data={tasks.filter((task) => determineCategory(new Date(task.date)) === category)}
         renderItem={({ item }) => {
-          const today = new Date();
           const taskDate = new Date(item.date);
           return (
-            <View style={styles.taskContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                setCurrentTask(item);
+                setIsViewTaskModalVisible(true);
+              }}
+              style={styles.taskContainer}
+            >
+              <View style={styles.taskContent}>
               <TouchableOpacity
-                onPress={() => toggleTaskCompletion(item.id)}
-                style={styles.taskContent}
-              >
-                <Ionicons
-                  name={item.completed ? "checkmark-circle" : "ellipse-outline"}
-                  size={20}
-                  color={item.completed ? "green" : "gray"}
-                />
-                <Text
-                  style={[
-                    styles.task,
-                    taskDate < today && { color: "red" },
-                    item.completed && { textDecorationLine: "line-through" },
-                  ]}
-                >
-                  {item.task} ({taskDate.toLocaleString()})
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleEditTask(item.id)}
-                style={styles.editButton}
-              >
-                <Ionicons name="pencil" size={20} color="blue" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleDeleteTask(item.id)}
-                style={styles.deleteButton}
-              >
-                <Ionicons name="trash" size={20} color="red" />
-              </TouchableOpacity>
-            </View>
+  onPress={() => toggleTaskCompletion(item.id)}
+  style={styles.taskCheckbox} // Чекбокс поруч із текстом
+>
+  <Ionicons
+    name={item.completed ? "checkmark-circle" : "ellipse-outline"}
+    size={28} // Збільшуємо розмір іконки
+    color={item.completed ? "green" : "gray"}
+  />
+</TouchableOpacity>
+<View style={styles.taskContent}>
+  <Text
+    style={[
+      styles.task,
+      item.completed && { textDecorationLine: "line-through" },
+    ]}
+  >
+    {item.task}
+  </Text>
+  <Text style={styles.taskDate}>
+    {taskDate.toLocaleDateString()} {taskDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}
+  </Text>
+</View>
+              </View>
+            </TouchableOpacity>
           );
         }}
         keyExtractor={(item) => item.id}
@@ -167,25 +171,73 @@ export default function HomeScreen() {
 
       <TouchableOpacity
         style={styles.globalAddButton}
-        onPress={() => {
-          setPreviousDate(selectedDate);
-          setNewTask("");
-          setCurrentTaskId(null);
-          setIsEditing(false);
-          setIsModalVisible(true);
-        }}
+        onPress={() => setIsModalVisible(true)}
       >
         <Ionicons name="add" size={30} color="white" />
       </TouchableOpacity>
 
+      {/* Модальне вікно перегляду завдання */}
+      {currentTask && (
+        <Modal
+          visible={isViewTaskModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setIsViewTaskModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={[styles.modalContent, { height: "70%" }]}>
+              <TextInput
+                style={[styles.input, styles.modalTitle]}
+                placeholder="Заголовок завдання"
+                value={currentTask.task}
+                onChangeText={(text) =>
+                  setCurrentTask((prev: any) => ({ ...prev, task: text }))
+                }
+              />
+              <TextInput
+                style={[styles.input, styles.modalNote]}
+                placeholder="Нотатка"
+                value={currentTask.note}
+                onChangeText={(text) =>
+                  setCurrentTask((prev: any) => ({ ...prev, note: text }))
+                }
+                multiline
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={() => setIsViewTaskModalVisible(false)}
+                  style={styles.cancelButton}
+                >
+                  <Text style={{ textAlign: "center" }}>Скасувати</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleUpdateTask}
+                  style={styles.addTaskButton}
+                >
+                  <Text style={{ textAlign: "center", color: "white" }}>
+                    Зберегти
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleDeleteTask(currentTask.id)}
+                style={styles.deleteButton}
+              >
+                <Text style={{ textAlign: "center", color: "white" }}>
+                  Видалити
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* Модальне вікно створення завдання */}
       <Modal
         visible={isModalVisible}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => {
-          setSelectedDate(previousDate);
-          setIsModalVisible(false);
-        }}
+        onRequestClose={() => setIsModalVisible(false)}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -194,10 +246,21 @@ export default function HomeScreen() {
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <Text style={styles.categoryTitle}>
-                  {isEditing ? "Редагувати завдання" : "Додати нове завдання"}
-                </Text>
+                <Text style={styles.categoryTitle}>Додати нове завдання</Text>
 
+                <TextInput
+                  style={styles.input}
+                  placeholder="Заголовок завдання"
+                  value={newTask}
+                  onChangeText={setNewTask}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Нотатка (додатковий опис)"
+                  value={taskNote}
+                  onChangeText={setTaskNote}
+                  multiline
+                />
                 <View style={styles.dateTimeRow}>
                   <View style={styles.dateTimeColumn}>
                     <Text style={styles.pickerLabel}>Дата</Text>
@@ -206,15 +269,7 @@ export default function HomeScreen() {
                       mode="date"
                       display="default"
                       onChange={(event, date) => {
-                        if (date) {
-                          const updatedDate = new Date(selectedDate);
-                          updatedDate.setFullYear(
-                            date.getFullYear(),
-                            date.getMonth(),
-                            date.getDate()
-                          );
-                          setSelectedDate(updatedDate);
-                        }
+                        if (date) setSelectedDate(date);
                       }}
                     />
                   </View>
@@ -224,7 +279,6 @@ export default function HomeScreen() {
                       value={selectedDate}
                       mode="time"
                       display="default"
-                      minuteInterval={1}
                       onChange={(event, date) => {
                         if (date) {
                           const updatedDate = new Date(selectedDate);
@@ -238,19 +292,9 @@ export default function HomeScreen() {
                     />
                   </View>
                 </View>
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Введіть нове завдання"
-                  value={newTask}
-                  onChangeText={setNewTask}
-                />
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    onPress={() => {
-                      setSelectedDate(previousDate);
-                      setIsModalVisible(false);
-                    }}
+                    onPress={() => setIsModalVisible(false)}
                     style={styles.cancelButton}
                   >
                     <Text style={{ textAlign: "center" }}>Скасувати</Text>
@@ -260,7 +304,7 @@ export default function HomeScreen() {
                     style={styles.addTaskButton}
                   >
                     <Text style={{ textAlign: "center", color: "white" }}>
-                      {isEditing ? "Зберегти" : "Додати"}
+                      Додати
                     </Text>
                   </TouchableOpacity>
                 </View>

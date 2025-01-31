@@ -21,19 +21,34 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   taskContainer: {
-    flexDirection: "row",
+    flexDirection: "row", // Чекбокс і текст у рядок
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 5,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "white",
+    borderRadius: 8,
+    borderWidth: 1, // Бордер навколо завдання
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  taskCheckbox: {
+    marginRight: 10, // Відступ між чекбоксом і текстом
   },
   taskContent: {
-    flexDirection: "row",
-    alignItems: "center",
     flex: 1,
   },
   task: {
     fontSize: 16,
-    marginLeft: 10,
+    color: "#333",
+  },
+  taskDate: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 5,
   },
   emptyText: {
     fontSize: 14,
@@ -41,7 +56,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 10,
   },
-  addButton: {
+  globalAddButton: {
     position: "absolute",
     bottom: 20,
     right: 20,
@@ -72,6 +87,25 @@ export const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
   },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingBottom: 5,
+  },
+  modalNote: {
+    fontSize: 16,
+    color: "#555",
+    height: 100,
+    textAlignVertical: "top",
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+  },
   input: {
     height: 40,
     borderColor: "#ccc",
@@ -85,7 +119,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   cancelButton: {
-    backgroundColor: "lightgray",
+    backgroundColor: "#f0f0f0",
     padding: 10,
     borderRadius: 8,
     flex: 1,
@@ -98,47 +132,25 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 5,
   },
-  globalAddButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#007AFF",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
+  deleteButton: {
+    backgroundColor: "lightcoral",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 20,
   },
   dateTimeRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginVertical: 10,
   },
   dateTimeColumn: {
     flex: 1,
     alignItems: "center",
-    marginHorizontal: 5,
   },
   pickerLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5,
-  },
-  editButton: {
-    marginHorizontal: 5,
-    padding: 5,
-    borderRadius: 5,
-    backgroundColor: "lightblue",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  deleteButton: {
-    marginHorizontal: 5,
-    padding: 5,
-    borderRadius: 5,
-    backgroundColor: "lightcoral",
-    justifyContent: "center",
-    alignItems: "center",
+    color: "#555",
   },
 });
